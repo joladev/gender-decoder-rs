@@ -19,8 +19,8 @@ struct TemplateContext {
 }
 
 #[derive(FromForm)]
-struct Ad<'r> {
-    ad_text: &'r str
+struct Ad {
+    ad_text: String
 }
 
 fn ad_decoder(ad: &str, word_list: Vec<String>) -> Vec<String> {
@@ -48,9 +48,9 @@ fn index() -> io::Result<NamedFile> {
     NamedFile::open("templates/index.html")
 }
 
-#[post("/decode", data = "<ad_form>")]
-fn decode<'a>(ad_form: Form<'a, Ad<'a>>) -> Template {
-    let ad_text = ad_form.get().ad_text;
+#[post("/decode", format = "application/x-www-form-urlencoded", data = "<ad_form>")]
+fn decode(ad_form: Form<Ad>) -> Template {
+    let ad_text = &ad_form.get().ad_text;
     let feminine_words = get_words("src/feminine_words.json");
     let masculine_words = get_words("src/masculine_words.json");
     let feminine_results = ad_decoder(ad_text, feminine_words);
