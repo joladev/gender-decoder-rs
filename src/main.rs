@@ -4,7 +4,8 @@
 extern crate rocket_contrib;
 extern crate rocket;
 extern crate serde_json;
-#[macro_use] extern crate serde_derive;
+#[macro_use]
+extern crate serde_derive;
 extern crate rand;
 
 use std::io;
@@ -22,12 +23,12 @@ use std::path::{Path, PathBuf};
 struct TemplateContext {
     feminine_words: Vec<String>,
     masculine_words: Vec<String>,
-    ad_text: String
+    ad_text: String,
 }
 
 #[derive(FromForm)]
 struct Ad {
-    ad_text: String
+    ad_text: String,
 }
 
 fn ad_decoder(ad: &str, word_list: Vec<String>) -> Vec<String> {
@@ -56,9 +57,9 @@ fn get_id() -> String {
     let size = 10;
     let mut id = String::with_capacity(size);
     let mut rng = rand::thread_rng();
-        for _ in 0..size {
-            id.push(BASE62[rng.gen::<usize>() % 62] as char);
-        }
+    for _ in 0..size {
+        id.push(BASE62[rng.gen::<usize>() % 62] as char);
+    }
     id
 }
 
@@ -73,8 +74,7 @@ fn index() -> Template {
 fn get_by_id(id: String) -> io::Result<Template> {
     let mut ad_text = String::new();
 
-    File::open(Path::new(&format!("uploads/{id}", id = id)))
-        .unwrap()
+    File::open(Path::new(&format!("uploads/{id}", id = id))).unwrap()
         .read_to_string(&mut ad_text)?;
 
     let feminine_words = get_words("src/feminine_words.json");
@@ -85,7 +85,7 @@ fn get_by_id(id: String) -> io::Result<Template> {
     let context = TemplateContext {
         feminine_words: feminine_results,
         masculine_words: masculine_results,
-        ad_text: ad_text
+        ad_text: ad_text,
     };
 
     Ok(Template::render("index", &context))
@@ -97,8 +97,7 @@ fn decode(ad_form: Form<Ad>) -> io::Result<Redirect> {
     let path = format!("uploads/{id}", id = id);
     let ad_text = &ad_form.get().ad_text;
 
-    File::create(Path::new(&path))
-        .unwrap()
+    File::create(Path::new(&path)).unwrap()
         .write_all(ad_text.as_bytes())?;
 
     Ok(Redirect::to(&format!("/{id}", id = id)))
