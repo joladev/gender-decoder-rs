@@ -20,7 +20,8 @@ use rand::Rng;
 #[derive(Serialize)]
 struct TemplateContext {
     feminine_words: Vec<String>,
-    masculine_words: Vec<String>
+    masculine_words: Vec<String>,
+    ad_text: String
 }
 
 #[derive(FromForm)]
@@ -67,9 +68,10 @@ fn index() -> io::Result<NamedFile> {
 
 #[get("/<id>")]
 fn get_by_id(id: String) -> Template {
-    let mut ad_text = &mut String::new();
+    let mut ad_text = String::new();
 
-    File::open(format!("uploads/{id}", id = id)).unwrap().read_to_string(ad_text);
+    File::open(format!("uploads/{id}", id = id)).unwrap().read_to_string(&mut ad_text);
+    
     let feminine_words = get_words("src/feminine_words.json");
     let masculine_words = get_words("src/masculine_words.json");
     let feminine_results = ad_decoder(&ad_text, feminine_words);
@@ -77,7 +79,8 @@ fn get_by_id(id: String) -> Template {
 
     let context = TemplateContext {
         feminine_words: feminine_results,
-        masculine_words: masculine_results
+        masculine_words: masculine_results,
+        ad_text: ad_text
     };
 
     Template::render("decoded", &context)
