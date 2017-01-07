@@ -47,8 +47,8 @@ fn ad_decoder(ad: &str, word_list: Vec<String>) -> Vec<String> {
 }
 
 fn get_words(path: &str) -> Vec<String> {
-    let file = File::open(path).expect(format!("Failed to load: {}", path).as_str());
-    serde_json::from_reader(file).expect(format!("Failed to deserialize json: {}", path).as_str())
+    let file = File::open(Path::new(path)).unwrap();
+    serde_json::from_reader(file).unwrap()
 }
 
 const BASE62: &'static [u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
