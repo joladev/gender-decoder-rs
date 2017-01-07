@@ -16,6 +16,7 @@ use rocket::response::Redirect;
 use std::io::Write;
 use std::io::Read;
 use rand::Rng;
+use std::path::{Path, PathBuf};
 
 #[derive(Serialize)]
 struct TemplateContext {
@@ -62,16 +63,20 @@ fn get_id() -> String {
 }
 
 #[get("/")]
-fn index() -> io::Result<NamedFile> {
-    NamedFile::open("templates/index.html")
+fn index() -> Template {
+    let mut map = std::collections::HashMap::new();
+    map.insert("index", true);
+    Template::render("index", &map)
 }
 
 #[get("/<id>")]
 fn get_by_id(id: String) -> Template {
     let mut ad_text = String::new();
 
-    File::open(format!("uploads/{id}", id = id)).unwrap().read_to_string(&mut ad_text);
-    
+    File::open(Path::new(&format!("uploads/{id}", id = id)))
+        .unwrap()
+        .read_to_string(&mut ad_text);
+
     let feminine_words = get_words("src/feminine_words.json");
     let masculine_words = get_words("src/masculine_words.json");
     let feminine_results = ad_decoder(&ad_text, feminine_words);
@@ -83,7 +88,7 @@ fn get_by_id(id: String) -> Template {
         ad_text: ad_text
     };
 
-    Template::render("decoded", &context)
+    Template::render("index", &context)
 }
 
 #[post("/decode", data = "<ad_form>")]
@@ -92,13 +97,20 @@ fn decode(ad_form: Form<Ad>) -> Redirect {
     let path = format!("uploads/{id}", id = id);
     let ad_text = &ad_form.get().ad_text;
 
-    File::create(path).unwrap().write_all(ad_text.as_bytes());
+    File::create(Path::new(&path))
+        .unwrap()
+        .write_all(ad_text.as_bytes());
 
     Redirect::to(&format!("/{id}", id = id))
 }
 
+#[get("/<path..>", rank = 5)]
+fn all(path: PathBuf) -> io::Result<NamedFile> {
+    NamedFile::open(Path::new("static/").join(path))
+}
+
 fn main() {
     rocket::ignite()
-        .mount("/", routes![index, decode, get_by_id])
+        .mount("/", routes![index, decode, get_by_id, all])
         .launch();
 }

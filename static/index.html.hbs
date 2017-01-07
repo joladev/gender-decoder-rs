@@ -1,0 +1,77 @@
+<!doctype>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Your page title here :)</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/skeleton.css">
+  <link rel="stylesheet" href="/css/main.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row">
+      <div class="one-half column" style="margin-top: 15%">
+        {{#if index}}
+          <h1>gender-decoder.rs</h1>
+          <p>What's this?</p>
+        {{/if}}
+        {{#unless index}}
+          <h4>Job ad</h4>
+          <p>{{ad_text}}</p>
+        {{/unless}}
+      </div>
+      <div class="one-half column" style="margin-top: 15%">
+        {{#if index}}
+          <form action="/decode" method="post" accept-charset="utf-8">
+            <label for="ad_text">Ad text</label>
+            <textarea class="u-full-width" name="ad_text"></textarea>
+            <input class="button button-primary" type="submit">
+          </form>
+        {{/if}}
+        {{#unless index}}
+          <h4>Feminine words</h4>
+          <ul>
+            {{#each feminine_words}}
+              <li>{{this}}</li>
+            {{/each}}
+          </ul>
+
+          <h4>Masculine words</h4>
+          <ul>
+            {{#each masculine_words}}
+              <li>{{this}}</li>
+            {{/each}}
+          </ul>
+        {{/unless}}
+      </div>
+    </div>
+  </div>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>
