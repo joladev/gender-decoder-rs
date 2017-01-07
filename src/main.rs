@@ -91,8 +91,8 @@ fn get_by_id(id: String) -> io::Result<Template> {
     Ok(Template::render("index", &context))
 }
 
-#[post("/decode", data = "<ad_form>")]
-fn decode(ad_form: Form<Ad>) -> io::Result<Redirect> {
+#[post("/save", data = "<ad_form>")]
+fn save(ad_form: Form<Ad>) -> io::Result<Redirect> {
     let id = get_id();
     let path = format!("uploads/{id}", id = id);
     let ad_text = &ad_form.get().ad_text;
@@ -104,12 +104,12 @@ fn decode(ad_form: Form<Ad>) -> io::Result<Redirect> {
 }
 
 #[get("/<path..>", rank = 5)]
-fn all(path: PathBuf) -> io::Result<NamedFile> {
+fn static_files(path: PathBuf) -> io::Result<NamedFile> {
     NamedFile::open(Path::new("static/").join(path))
 }
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![index, decode, get_by_id, all])
+        .mount("/", routes![index, save, get_by_id, static_files])
         .launch();
 }
