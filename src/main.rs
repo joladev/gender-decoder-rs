@@ -74,8 +74,8 @@ fn index() -> Template {
 fn get_by_id(id: String) -> io::Result<Template> {
     let mut ad_text = String::new();
 
-    File::open(Path::new(&format!("uploads/{id}", id = id))).unwrap()
-        .read_to_string(&mut ad_text)?;
+    File::open(Path::new(&format!("uploads/{id}", id = id)))
+        .and_then(|mut s| s.read_to_string(&mut ad_text))?;
 
     let feminine_words = get_words("src/feminine_words.json");
     let masculine_words = get_words("src/masculine_words.json");
@@ -97,8 +97,8 @@ fn decode(ad_form: Form<Ad>) -> io::Result<Redirect> {
     let path = format!("uploads/{id}", id = id);
     let ad_text = &ad_form.get().ad_text;
 
-    File::create(Path::new(&path)).unwrap()
-        .write_all(ad_text.as_bytes())?;
+    File::create(Path::new(&path))
+        .and_then(|mut file| file.write_all(ad_text.as_bytes()))?;
 
     Ok(Redirect::to(&format!("/{id}", id = id)))
 }
