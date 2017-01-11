@@ -34,12 +34,11 @@ struct Ad {
 fn ad_decoder(ad: &str, word_list: Vec<String>) -> Vec<String> {
     let mut results = vec![];
     let ad_words = ad.split(|s: char| !s.is_alphabetic())
-        .map(|s| s.to_lowercase())
-        .collect::<Vec<_>>();
+        .map(|s| s.to_lowercase());
 
-    for word in &word_list {
-        if let Some(found) = ad_words.iter().find(|ad_word| ad_word.starts_with(word)) {
-            results.push(found.to_string());
+    for ad_word in ad_words {
+        if word_list.iter().any(|word| ad_word.starts_with(word)) {
+            results.push(ad_word.to_string());
         }
     }
 
@@ -57,9 +56,11 @@ fn get_id() -> String {
     let size = 10;
     let mut id = String::with_capacity(size);
     let mut rng = rand::thread_rng();
+
     for _ in 0..size {
         id.push(BASE62[rng.gen::<usize>() % 62] as char);
     }
+
     id
 }
 
