@@ -8,6 +8,8 @@ extern crate serde_json;
 extern crate serde_derive;
 extern crate rand;
 
+mod word_lists;
+
 use std::io;
 use std::fs::File;
 use rocket::response::NamedFile;
@@ -18,6 +20,8 @@ use std::io::Write;
 use std::io::Read;
 use rand::Rng;
 use std::path::{Path, PathBuf};
+
+const BASE62: &'static [u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 #[derive(Serialize)]
 struct TemplateContext {
@@ -31,7 +35,7 @@ struct Ad {
     ad_text: String,
 }
 
-fn ad_decoder(ad: &str, word_list: Vec<String>) -> Vec<String> {
+fn ad_decoder(ad: &str, word_list: Vec<&str>) -> Vec<String> {
     let mut results = vec![];
     let ad_words = ad.split(|s: char| !s.is_alphabetic())
         .map(|s| s.to_lowercase());
@@ -44,13 +48,6 @@ fn ad_decoder(ad: &str, word_list: Vec<String>) -> Vec<String> {
 
     results
 }
-
-fn get_words(path: &str) -> Vec<String> {
-    let file = File::open(Path::new(path)).unwrap();
-    serde_json::from_reader(file).unwrap()
-}
-
-const BASE62: &'static [u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 fn get_id() -> String {
     let size = 10;
@@ -78,10 +75,8 @@ fn get_by_id(id: String) -> io::Result<Template> {
     File::open(Path::new(&format!("uploads/{id}", id = id)))
         .and_then(|mut s| s.read_to_string(&mut ad_text))?;
 
-    let feminine_words = get_words("src/feminine_words.json");
-    let masculine_words = get_words("src/masculine_words.json");
-    let feminine_results = ad_decoder(&ad_text, feminine_words);
-    let masculine_results = ad_decoder(&ad_text, masculine_words);
+    let feminine_results = ad_decoder(&ad_text, word_lists::FEMININE_WORDS.to_vec());
+    let masculine_results = ad_decoder(&ad_text, word_lists::MASCULINE_WORDS.to_vec());
 
     let context = TemplateContext {
         feminine_words: feminine_results,
