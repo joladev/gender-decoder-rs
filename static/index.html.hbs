@@ -37,7 +37,8 @@
       <div class="one-half column" style="margin-top: 15%">
         {{#if index}}
           <h1>gender-decoder.rs</h1>
-          <p>What's this?</p>
+          <p>Research shows that job ads are frequently written in a way that risks alienating women. While men rarely react to feminine coded words, the opposite is not true. Avoiding overtly masculine coding makes your ad more inclusive.<p>
+          <p>A <a href="https://www.rust-lang.org/">rust</a> implementation of <a href="http://gender-decoder.katmatfield.com/">Kat Matfield's Gender Decoder</a>. The source code is on <a href="https://github.com/yuhama/gender-decoder-rs">Github</a>.</p>
         {{/if}}
         {{#unless index}}
           <h4>Job ad</h4>
@@ -47,9 +48,9 @@
       <div class="one-half column" style="margin-top: 15%">
         {{#if index}}
           <form action="/save" method="post" accept-charset="utf-8">
-            <label for="ad_text">Ad text</label>
+            <label for="ad_text">Paste your ad text here</label>
             <textarea class="u-full-width" name="ad_text"></textarea>
-            <input class="button button-primary" type="submit">
+            <input class="button button-primary" type="submit" value="Check">
           </form>
         {{/if}}
         {{#unless index}}
@@ -67,6 +68,11 @@
             {{/each}}
           </ul>
         {{/unless}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="four columns offset-by-four">
+        <p class="footer">Made by <a href="https://github.com/yuhama">@yuhama</a></p>
       </div>
     </div>
   </div>
