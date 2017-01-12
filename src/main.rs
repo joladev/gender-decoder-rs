@@ -28,6 +28,7 @@ struct TemplateContext {
     feminine_words: Vec<String>,
     masculine_words: Vec<String>,
     ad_text: String,
+    rating: String,
 }
 
 #[derive(FromForm)]
@@ -47,6 +48,24 @@ fn ad_decoder(ad: &str, word_list: Vec<&str>) -> Vec<String> {
     }
 
     results
+}
+
+fn ad_rater(feminine_words: &Vec<String>, masculine_words: &Vec<String>) -> String {
+    let feminine_count = feminine_words.len() as i32;
+    let masculine_count = masculine_words.len() as i32;
+
+    let (modifier, kind) = match feminine_count - masculine_count {
+        i if i <= -3 => ("heavily", "masculine"),
+        i if i == -2 => ("quite", "masculine"),
+        i if i == -1 => ("quite", "masculine"),
+        i if i ==  0 => ("", "neutral"),
+        i if i ==  1 => ("slightly", "feminine"),
+        i if i ==  2 => ("quite", "feminine"),
+        i if i >=  3 => ("heavily", "feminine"),
+        _ => ("", "")
+    };
+
+    format!("The ad is {modifier} {kind} coded.", modifier = modifier, kind = kind)
 }
 
 fn get_id() -> String {
@@ -77,11 +96,13 @@ fn get_by_id(id: String) -> io::Result<Template> {
 
     let feminine_results = ad_decoder(&ad_text, word_lists::FEMININE_WORDS.to_vec());
     let masculine_results = ad_decoder(&ad_text, word_lists::MASCULINE_WORDS.to_vec());
+    let rating = ad_rater(&feminine_results, &masculine_results);
 
     let context = TemplateContext {
         feminine_words: feminine_results,
         masculine_words: masculine_results,
         ad_text: ad_text,
+        rating: rating
     };
 
     Ok(Template::render("index", &context))
