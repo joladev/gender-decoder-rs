@@ -8,6 +8,7 @@ extern crate serde_json;
 extern crate serde_derive;
 extern crate rand;
 
+mod analyze;
 mod word_lists;
 
 use std::io;
@@ -36,38 +37,6 @@ struct Ad {
     ad_text: String,
 }
 
-fn ad_decoder(ad: &str, word_list: Vec<&str>) -> Vec<String> {
-    let mut results = vec![];
-    let ad_words = ad.split(|s: char| !s.is_alphabetic())
-        .map(|s| s.to_lowercase());
-
-    for ad_word in ad_words {
-        if word_list.iter().any(|word| ad_word.starts_with(word)) {
-            results.push(ad_word.to_string());
-        }
-    }
-
-    results
-}
-
-fn ad_rater(feminine_words: &Vec<String>, masculine_words: &Vec<String>) -> String {
-    let feminine_count = feminine_words.len() as i32;
-    let masculine_count = masculine_words.len() as i32;
-
-    let (modifier, kind) = match feminine_count - masculine_count {
-        i if i <= -3 => ("heavily", "masculine"),
-        i if i == -2 => ("quite", "masculine"),
-        i if i == -1 => ("quite", "masculine"),
-        i if i ==  0 => ("", "neutral"),
-        i if i ==  1 => ("slightly", "feminine"),
-        i if i ==  2 => ("quite", "feminine"),
-        i if i >=  3 => ("heavily", "feminine"),
-        _ => ("", "")
-    };
-
-    format!("The ad is {modifier} {kind} coded.", modifier = modifier, kind = kind)
-}
-
 fn get_id() -> String {
     let size = 10;
     let mut id = String::with_capacity(size);
@@ -94,9 +63,9 @@ fn get_by_id(id: String) -> io::Result<Template> {
     File::open(Path::new(&format!("uploads/{id}", id = id)))
         .and_then(|mut s| s.read_to_string(&mut ad_text))?;
 
-    let feminine_results = ad_decoder(&ad_text, word_lists::FEMININE_WORDS.to_vec());
-    let masculine_results = ad_decoder(&ad_text, word_lists::MASCULINE_WORDS.to_vec());
-    let rating = ad_rater(&feminine_results, &masculine_results);
+    let feminine_results = analyze::ad_decoder(&ad_text, word_lists::FEMININE_WORDS.to_vec());
+    let masculine_results = analyze::ad_decoder(&ad_text, word_lists::MASCULINE_WORDS.to_vec());
+    let rating = analyze::ad_rater(&feminine_results, &masculine_results);
 
     let context = TemplateContext {
         feminine_words: feminine_results,
