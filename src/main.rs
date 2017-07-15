@@ -10,8 +10,11 @@ extern crate rand;
 
 mod word_lists;
 
+use word_lists::WordLists;
+
 use std::io;
 use std::fs::File;
+use rocket::State;
 use rocket::response::NamedFile;
 use rocket::request::Form;
 use rocket_contrib::Template;
@@ -36,7 +39,7 @@ struct Ad {
     ad_text: String,
 }
 
-fn ad_decoder(ad: &str, word_list: Vec<&str>) -> Vec<String> {
+fn ad_decoder(ad: &str, word_list: &Vec<String>) -> Vec<String> {
     let mut results = vec![];
     let ad_words = ad.split(|s: char| !s.is_alphabetic())
         .map(|s| s.to_lowercase());
@@ -88,14 +91,14 @@ fn index() -> Template {
 }
 
 #[get("/<id>")]
-fn get_by_id(id: String) -> io::Result<Template> {
+fn get_by_id(id: String, word_lists: State<WordLists>) -> io::Result<Template> {
     let mut ad_text = String::new();
 
     File::open(Path::new(&format!("uploads/{id}", id = id)))
         .and_then(|mut s| s.read_to_string(&mut ad_text))?;
 
-    let feminine_results = ad_decoder(&ad_text, word_lists::FEMININE_WORDS.to_vec());
-    let masculine_results = ad_decoder(&ad_text, word_lists::MASCULINE_WORDS.to_vec());
+    let feminine_results = ad_decoder(&ad_text, &word_lists.feminine);
+    let masculine_results = ad_decoder(&ad_text, &word_lists.masculine);
     let rating = ad_rater(&feminine_results, &masculine_results);
 
     let context = TemplateContext {
@@ -128,5 +131,7 @@ fn static_files(path: PathBuf) -> io::Result<NamedFile> {
 fn main() {
     rocket::ignite()
         .mount("/", routes![index, save, get_by_id, static_files])
+        .manage(WordLists::new("static/words.json"))
+        .attach(Template::fairing())
         .launch();
 }
