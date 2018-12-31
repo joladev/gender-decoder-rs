@@ -4,8 +4,8 @@ version = "0.1.0"
 authors = ["Johanna Larsson <johanna.a.m.larsson@gmail.com>"]
 
 [dependencies]
-rocket = "0.3.0"
-rocket_codegen = "0.3.0"
+rocket = "0.4.0"
+rocket_codegen = "0.4.0"
 serde = "*"
 serde_derive = "*"
 serde_json = "*"

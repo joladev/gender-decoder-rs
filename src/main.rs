@@ -1,8 +1,8 @@
-#![feature(plugin, custom_derive)]
-#![plugin(rocket_codegen)]
+
+#![feature(proc_macro_hygiene, decl_macro,plugin)]
+#[macro_use] extern crate rocket;
 
 extern crate rocket_contrib;
-extern crate rocket;
 extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
@@ -17,7 +17,7 @@ use std::fs::File;
 use rocket::State;
 use rocket::response::NamedFile;
 use rocket::request::Form;
-use rocket_contrib::Template;
+use rocket_contrib::templates::Template;
 use rocket::response::Redirect;
 use std::io::Write;
 use std::io::Read;
@@ -115,12 +115,12 @@ fn get_by_id(id: String, word_lists: State<WordLists>) -> io::Result<Template> {
 fn save(ad_form: Form<Ad>) -> io::Result<Redirect> {
     let id = get_id();
     let path = format!("uploads/{id}", id = id);
-    let ad_text = &ad_form.get().ad_text;
+    let ad_text = ad_form.into_inner().ad_text;
 
     File::create(Path::new(&path))
         .and_then(|mut file| file.write_all(ad_text.as_bytes()))?;
 
-    Ok(Redirect::to(&format!("/{id}", id = id)))
+    Ok(Redirect::to(format!("/{id}", id = id)))
 }
 
 #[get("/<path..>", rank = 5)]
