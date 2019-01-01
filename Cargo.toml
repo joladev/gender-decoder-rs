@@ -13,4 +13,4 @@ rand = "0.3"
 
 [dependencies.rocket_contrib]
 default-features = false
-features = ["handlebars_templates"]
+features = ["handlebars_templates", "serve"]

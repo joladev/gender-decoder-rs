@@ -4,8 +4,7 @@
 
 extern crate rocket_contrib;
 extern crate serde_json;
-#[macro_use]
-extern crate serde_derive;
+#[macro_use] extern crate serde_derive;
 extern crate rand;
 
 mod word_lists;
@@ -15,14 +14,14 @@ use word_lists::WordLists;
 use std::io;
 use std::fs::File;
 use rocket::State;
-use rocket::response::NamedFile;
 use rocket::request::Form;
 use rocket_contrib::templates::Template;
+use rocket_contrib::serve::StaticFiles;
 use rocket::response::Redirect;
 use std::io::Write;
 use std::io::Read;
 use rand::Rng;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 const BASE62: &'static [u8] = b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -90,7 +89,7 @@ fn index() -> Template {
     Template::render("index", &map)
 }
 
-#[get("/<id>")]
+#[get("/ads/<id>")]
 fn get_by_id(id: String, word_lists: State<WordLists>) -> io::Result<Template> {
     let mut ad_text = String::new();
 
@@ -120,17 +119,13 @@ fn save(ad_form: Form<Ad>) -> io::Result<Redirect> {
     File::create(Path::new(&path))
         .and_then(|mut file| file.write_all(ad_text.as_bytes()))?;
 
-    Ok(Redirect::to(format!("/{id}", id = id)))
-}
-
-#[get("/<path..>", rank = 5)]
-fn static_files(path: PathBuf) -> io::Result<NamedFile> {
-    NamedFile::open(Path::new("static/").join(path))
+    Ok(Redirect::to(format!("/ads/{id}", id = id)))
 }
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![index, save, get_by_id, static_files])
+        .mount("/", routes![index, save, get_by_id])
+        .mount("/", StaticFiles::from("static"))
         .manage(WordLists::new("static/words.json"))
         .attach(Template::fairing())
         .launch();
