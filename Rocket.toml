@@ -1,3 +1,4 @@
 [global]
 template_dir = "static"
 port = 8090
+log = "normal"

@@ -8,10 +8,10 @@ help:
 
 build: ## Build the Docker image
 		docker build \
-				-t yuhama/gender-decoder-rs-$(BUILD) \
-				-t yuhama/gender-decoder-rs:latest .
+				-t joladev/gender-decoder-rs:$(BUILD) \
+				-t joladev/gender-decoder-rs:latest .
 
 run: ## Run the app in Docker
 		docker run --expose 4000 -p 8090:8090 \
 				--volume "uploads:/opt/app/uploads:" \
-				--rm -it yuhama/gender-decoder-rs:latest
+				--rm -it joladev/gender-decoder-rs:latest
